@@ -108,6 +108,8 @@ namespace create => sub {
             sh q(mkdir tests);
             create_file('./tests/event.json', $TEST1_JSON);
         }
+        # bye!!
+        sh q(./Daikufile);
  
     };
 
