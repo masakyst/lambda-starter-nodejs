@@ -1,0 +1,115 @@
+
+use Template;
+
+our $BABEL_VERSION = '6.26.0';
+our $AWS_SDK_VERSION = '2.223.1';
+
+my $BABELRC = << "BABELRC";
+{
+  "presets": ["import-export"]
+}
+BABELRC
+
+my $PACKAGE_JSON = << "PACKAGE_JSON";
+{
+  "name": "function-name1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "ntl",
+    "watch": "babel -w src -d dist",
+    "build": "babel src -d dist ",
+    "create": "npm run build && claudia create --region ap-northeast-1 --handler dist/index.handler --runtime nodejs8.10",
+    "deploy": "claudia update",
+    "predeploy": "npm run build",
+    "test": "npm run build && lambda-local -l dist/index.js -h handler -e tests/event.json"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "6.26.0",
+    "babel-core": "6.26.0",
+    "babel-preset-import-export": "1.0.2",
+    "claudia": "4.0.0",
+    "lambda-local": "1.4.7",
+    "npm-run-all": "4.1.2",
+    "ntl": "2.0.0"
+  },
+  "dependencies": {
+    "aws-sdk": "2.223.1"
+  }
+}
+PACKAGE_JSON
+
+my $ENVRC = << 'ENVRC';
+export PATH=$PATH:`pwd`/node_modules/.bin
+ENVRC
+
+my $INDEX_JS_HANDLER = << 'INDEX_JS_HANDLER';
+import * as AWS from 'aws-sdk';
+
+export function handler(event, context, callback) {
+    try {
+        console.log("success");
+        context.succeed('hello ' + event.name);
+
+    } catch (err) {
+        console.error(err) 
+        callback(err);
+    }   
+}
+INDEX_JS_HANDLER
+
+my $TEST1_JSON = << 'TEST1_JSON';
+{
+    "name": "masakyst",
+    "key3": "12345"
+}
+TEST1_JSON
+
+
+sub create_file {
+    my ($path, $source) = @_;
+    open my $fh, '>', $path or die qw/Can't open file: $!/;
+    print $fh $source;
+    close $fh;
+}
+
+namespace create => sub {
+    
+    desc 'create Lambda function files';
+    task nodejs => sub {
+        # setup git
+        {
+            sh q(git init);
+            create_file('.gitignore', "/dist\n/node_modules");
+        }
+        # setup nodejs/babel
+        {
+            sh q(npm init -y);
+            create_file('.babelrc', $BABELRC);
+            create_file('.npmrc', "save-exact=true");
+            create_file('package.json', $PACKAGE_JSON);
+            sh q(npm install);
+        }
+        # setup direnv
+        {
+            create_file('.envrc', $ENVRC);
+            sh q(direnv allow);
+        }
+        # index.js handler
+        {
+            sh q(mkdir src);
+            create_file('./src/index.js', $INDEX_JS_HANDLER);
+            sh q(mkdir tests);
+            create_file('./tests/event.json', $TEST1_JSON);
+        }
+ 
+    };
+
+};
