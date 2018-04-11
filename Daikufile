@@ -91,7 +91,6 @@ namespace create => sub {
         }
         # setup nodejs/babel
         {
-            sh q(npm init -y);
             create_file('.babelrc', $BABELRC);
             create_file('.npmrc', "save-exact=true");
             create_file('package.json', $PACKAGE_JSON);
