@@ -26,7 +26,8 @@ my $PACKAGE_JSON = << "PACKAGE_JSON";
     "create": "npm run build && claudia create --region ap-northeast-1 --handler dist/index.handler --runtime nodejs8.10",
     "deploy": "claudia update",
     "predeploy": "npm run build",
-    "test": "npm run build && lambda-local -l dist/index.js -h handler -e tests/event.json"
+    "test": "npm run build && lambda-local -l dist/index.js -h handler -e tests/event.json",
+    "flow": "flow"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +37,8 @@ my $PACKAGE_JSON = << "PACKAGE_JSON";
     "babel-core": "6.26.0",
     "babel-preset-import-export": "1.0.2",
     "claudia": "3.4.1",
+    "flow-bin": "0.70.0",
+    "flow-typed": "2.4.0",
     "lambda-local": "1.4.7",
     "npm-run-all": "4.1.2",
     "ntl": "2.0.0"
@@ -73,6 +76,25 @@ my $TEST1_JSON = << 'TEST1_JSON';
 TEST1_JSON
 
 
+my $FLOW_CONFIG = << 'FLOW_CONFIG';
+[ignore]
+.*/node_modules/.*
+.*/dist/.*
+
+[include]
+
+[libs]
+flow-typed
+
+[lints]
+
+[options]
+
+[strict]
+FLOW_CONFIG
+
+
+
 sub create_file {
     my ($path, $source) = @_;
     open my $fh, '>', $path or die qw/Can't open file: $!/;
@@ -108,9 +130,13 @@ namespace create => sub {
             sh q(mkdir tests);
             create_file('./tests/event.json', $TEST1_JSON);
         }
+        # flow!
+        {
+            # sh q(npm run flow init);
+            create_file('.flowconfig', $FLOW_CONFIG);
+        }
         # bye!!
         sh q(rm ./Daikufile);
- 
     };
 
 };
