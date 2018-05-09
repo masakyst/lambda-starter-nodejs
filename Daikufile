@@ -1,8 +1,5 @@
 
-# use Template; # not used yet ...
-
-our $BABEL_VERSION = '6.26.0';
-our $AWS_SDK_VERSION = '2.223.1';
+use Cwd 'getcwd';
 
 my $BABELRC = << "BABELRC";
 {
@@ -12,7 +9,7 @@ BABELRC
 
 my $PACKAGE_JSON = << "PACKAGE_JSON";
 {
-  "name": "function-name1",
+  "name": "%s",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -115,7 +112,7 @@ namespace create => sub {
         {
             create_file('.babelrc', $BABELRC);
             create_file('.npmrc', "save-exact=true");
-            create_file('package.json', $PACKAGE_JSON);
+            create_file('package.json', sprintf($PACKAGE_JSON, (split('/', getcwd))[-1]));
             sh q(npm install);
         }
         # setup direnv
