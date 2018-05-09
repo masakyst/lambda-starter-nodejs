@@ -109,7 +109,7 @@ namespace create => sub {
             create_file('./tests/event.json', $TEST1_JSON);
         }
         # bye!!
-        sh q(./Daikufile);
+        sh q(rm ./Daikufile);
  
     };
 
