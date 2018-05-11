@@ -3,7 +3,13 @@ use Cwd 'getcwd';
 
 my $BABELRC = << "BABELRC";
 {
-  "presets": ["import-export"]
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": "8.10"
+      }
+    }]
+  ]
 }
 BABELRC
 
@@ -32,7 +38,7 @@ my $PACKAGE_JSON = << "PACKAGE_JSON";
   "devDependencies": {
     "babel-cli": "6.26.0",
     "babel-core": "6.26.0",
-    "babel-preset-import-export": "1.0.2",
+    "babel-preset-env": "1.7.0",
     "claudia": "3.4.1",
     "flow-bin": "0.70.0",
     "flow-typed": "2.4.0",
